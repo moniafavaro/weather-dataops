@@ -1,0 +1,69 @@
+# Gives a name to your workflow (it shows up in GitHub Actions UI)
+name: Weather Pipeline CI/CD
+
+# Defines when the workflow runs
+on:
+  # Runs the workflow every time you push code to the repo
+  push:
+  # Runs the workflow automatically every 2 hours
+  schedule:
+    # cron syntax → "0 */2 * * *" means: at minute 0, every 2nd hour, every day
+    - cron: "0 */2 * * *"
+
+# Workflows consist of jobs
+jobs:
+  # Here we define one job called test_and_fetch
+  test_and_fetch:
+    # The job runs inside a GitHub-hosted virtual machine running Ubuntu Linux
+    runs-on: ubuntu-latest
+    # A job is made of steps
+    # Each step can run an action (a reusable piece of automation) or a shell command
+    steps:
+      # Pulls your repository code into the runner machine
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # persist-credentials: true means it keeps the default GitHub token so we can later push commits back
+          persist-credentials: true 
+
+      # Installs Python 3.10 in the runner
+      # This ensures all steps run with the correct Python version
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # Installs all packages listed in requirements.txt
+      - name: Install dependencies
+        # run: means execute a shell command
+        run: pip install -r requirements.txt
+
+      # Runs your pytest suite to ensure everything works before fetching new data
+      # If tests fail, the workflow stops here (preventing bad data from being committed)
+      - name: Run tests
+        run: pytest
+
+      # Runs your weather-fetching script
+      - name: Fetch latest weather
+        # env: injects secrets (from GitHub repo settings) into environment variables for security
+        env:
+          # ${{ secrets.WEATHER_API_KEY }} pulls your API key from GitHub Secrets
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          CITY:           ${{ secrets.WEATHER_CITY }}
+        run: |
+          python fetch_weather.py
+
+      - name: Commit weather.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/weather.json || true
+          git commit -m "ci: update weather data" || echo "No changes to commit"
+          git push || echo "Push failed or no changes"
+
+      # Optional: build Docker image (uncomment & configure)
+      # - name: Build Docker image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     push: false
+      #     tags: user/weather-app:latest

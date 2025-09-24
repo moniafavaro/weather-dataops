@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Weather DataOps</title>
+    </head>
+    <body>
+        <h1>Weather in {{ weather.city }}</h1>
+        
+        <p>🌡 Temperature: {{ weather.temperature }} °C</p>
+        <p>💧 Humidity: {{ weather.humidity }}%</p>
+        <p>☁ Condition: {{ weather.condition }}</p>
+        <small>Last update: {{ weather.last_updated }}</small>
+    </body>
+</html>
