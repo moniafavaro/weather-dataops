@@ -37,12 +37,7 @@ jobs:
       - name: Install dependencies
         # run: means execute a shell command
         run: pip install -r requirements.txt
-
-      # Runs your pytest suite to ensure everything works before fetching new data
-      # If tests fail, the workflow stops here (preventing bad data from being committed)
-      - name: Run tests
-        run: pytest
-
+        
       # Runs your weather-fetching script
       - name: Fetch latest weather
         # env: injects secrets (from GitHub repo settings) into environment variables for security
@@ -52,6 +47,11 @@ jobs:
           CITY:           ${{ secrets.WEATHER_CITY }}
         run: |
           python fetch_weather.py
+
+      # Runs your pytest suite to ensure everything works before fetching new data
+      # If tests fail, the workflow stops here (preventing bad data from being committed)
+      - name: Run tests
+        run: pytest
 
       - name: Commit weather.json if changed
         run: |
