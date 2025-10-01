@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: weather-dataops
+    env: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: WEATHER_API_KEY
+        sync: false
+      - key: CITY
+        sync: false
