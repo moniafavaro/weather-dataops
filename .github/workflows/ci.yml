@@ -23,8 +23,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          # persist-credentials: true means it keeps the default GitHub token so we can later push commits back
-          persist-credentials: true 
+          # persist-credentials: disable default token to use GITHUB_TOKEN explicitly
+          persist-credentials: false 
 
       # Installs Python 3.10 in the runner
       # This ensures all steps run with the correct Python version
@@ -45,8 +45,7 @@ jobs:
           # ${{ secrets.WEATHER_API_KEY }} pulls your API key from GitHub Secrets
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           CITY:           ${{ secrets.WEATHER_CITY }}
-        run: |
-          python fetch_weather.py
+        run: python fetch_weather.py
 
       # Runs your pytest suite to ensure everything works before fetching new data
       # If tests fail, the workflow stops here (preventing bad data from being committed)
@@ -58,9 +57,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/weather.json data/weather_log.csv || true
-          git commit -m "ci: update weather data" || echo "No changes to commit"
-          git push || echo "Push failed or no changes"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main || echo "Push failed or no changes"
+          git diff --cached --quiet || git commit -m "ci: update weather data"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin HEAD:main
 
       # Trigger Render deploy after commit
       - name: Trigger Render Deploy
