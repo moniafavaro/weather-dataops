@@ -60,6 +60,7 @@ jobs:
           git diff --cached --quiet || git commit -m "ci: update weather data"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
 
+
       # Trigger Render deploy after commit
       - name: Trigger Render Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
