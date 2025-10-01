@@ -60,6 +60,7 @@ jobs:
           git add data/weather.json data/weather_log.csv || true
           git commit -m "ci: update weather data" || echo "No changes to commit"
           git push || echo "Push failed or no changes"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main || echo "Push failed or no changes"
 
       # Trigger Render deploy after commit
       - name: Trigger Render Deploy
