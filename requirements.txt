@@ -2,3 +2,4 @@ Flask
 requests
 pytest
 python-dotenv
+matplotlib==3.10.1
