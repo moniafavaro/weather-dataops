@@ -9,16 +9,14 @@
     <body>
         <h1>Weather in {{ weather.city }}</h1>
         
-        <section>
+        <section id="section-1">
             <p>Temperature: {{ weather.temperature }} °C 🌡</p>
             <p>Humidity: {{ weather.humidity }}% 💧</p>
             <p>Condition: {{ weather.condition }} ☁</p>
             <small>Last update: {{ weather.last_updated }} GMT</small>
         </section>
 
-        <section>
-            <h2>Temperature Trend</h2>
-            
+        <section id="section-2">            
             <img src="{{ url_for('plot_temperature') }}" alt="Weather Trend">
         </section>
     </body>

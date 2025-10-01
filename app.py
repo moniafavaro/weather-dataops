@@ -1,10 +1,11 @@
 from flask import Flask, render_template, abort, Response
 from datetime import datetime
-import json, os, csv
+import pandas as pd
+import json, os, io
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import io
+import matplotlib.dates as mdates
 
 app = Flask(__name__)
 
@@ -55,18 +56,20 @@ def plot_temperature():
     if not os.path.exists(LOG_FILE):
         abort(404, "No weather log yet")
 
-    import pandas as pd
     df = pd.read_csv(LOG_FILE, parse_dates=["timestamp"])
 
     if df.empty or "temperature" not in df.columns:
         abort(404, "No valid temperature data found")
 
     plt.figure(figsize=(8, 4))
-    plt.plot(df["timestamp"], df["temperature"], marker="o", color="blue")
-    plt.title("Temperature Trend")
-    plt.xlabel("Time (UTC)")
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=10))
+    plt.plot(df["timestamp"], df["temperature"], marker="o", color="slateblue", linewidth=2)
+    plt.grid(True, linestyle=":", linewidth=0.7, color="lightgray")
+    plt.title("Temperature Trend", fontsize=20)
+    plt.xlabel("Date (dd-mm-yy)")
     plt.ylabel("Temperature (°C)")
-    plt.xticks(rotation=45, ha="right")
+    # plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
 
     img = io.BytesIO()
